@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { createContext } from "react";
 
 export const CarrinhoContext = createContext();
@@ -6,15 +6,20 @@ CarrinhoContext.displayName = "Carrinho";
 
 export const CarrinhoProvider = ({ children }) => {
   const [carrinho, setCarrinho] = useState([]);
+  const [quantidadeProduto, setQuantidadeProduto] = useState(0);
+
   return (
-    <CarrinhoContext.Provider value={{ carrinho, setCarrinho }}>
+    <CarrinhoContext.Provider
+      value={{ carrinho, setCarrinho, quantidadeProduto, setQuantidadeProduto }}
+    >
       {children}
     </CarrinhoContext.Provider>
   );
 };
 
 export const useCarrinhoContext = () => {
-  const { carrinho, setCarrinho } = useContext(CarrinhoContext);
+  const { carrinho, setCarrinho, quantidadeProduto, setQuantidadeProduto } =
+    useContext(CarrinhoContext);
 
   const adicionaProduto = (novoProduto) => {
     const temProduto = carrinho.some(
@@ -36,8 +41,37 @@ export const useCarrinhoContext = () => {
     );
   };
 
-  const removerProduto =(id)=>{
+  const removerProduto = (id) => {
+    const produto = carrinho.find((itemCarrinho) => itemCarrinho.id === id);
+    const eUltimoItem = produto.quantidade === 1;
 
-  }
-  return { carrinho, setCarrinho, adicionaProduto };
+    if (eUltimoItem) {
+      return setCarrinho((carrinhoAnterior) =>
+        carrinhoAnterior.filter((itemCarrinho) => itemCarrinho.id !== id)
+      );
+    }
+    setCarrinho((carrinhoAnterior) =>
+      carrinhoAnterior.map((itemCarrinho) => {
+        if (itemCarrinho.id === id) itemCarrinho.quantidade -= 1;
+        return itemCarrinho;
+      })
+    );
+  };
+  
+  useEffect(() => {
+    const novaQuantidade = carrinho.reduce(
+      (contador, produto) => contador + produto.quantidade,
+      0
+    );
+    setQuantidadeProduto(novaQuantidade);
+  }, [carrinho, setQuantidadeProduto]);
+
+  return {
+    carrinho,
+    setCarrinho,
+    adicionaProduto,
+    removerProduto,
+    quantidadeProduto,
+    setQuantidadeProduto,
+  };
 };
