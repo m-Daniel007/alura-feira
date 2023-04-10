@@ -6,7 +6,7 @@ import {
   MenuItem,
 } from "@material-ui/core";
 import MuiAlert from "@material-ui/lab/Alert";
-import { useContext, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import {
   Container,
   Voltar,
@@ -16,15 +16,20 @@ import {
 import { useCarrinhoContext } from "common/context/Carrinho";
 import Produto from "components/Produto";
 import { useHistory } from "react-router-dom";
-import { PagamentoContext, usePagamentoContext } from "common/context/Pagamento";
+import { usePagamentoContext } from "common/context/Pagamento";
+import { UsuarioContext } from "common/context/Usuario";
 
 function Carrinho() {
   const [openSnackbar, setOpenSnackbar] = useState(false);
-  const { carrinho } = useCarrinhoContext();
+  const { carrinho, valorTotalCarrinho,efetuarCompra } = useCarrinhoContext();
+  const { saldo } = useContext(UsuarioContext);
   const { tipoPagamento, formaPagamento, mudarFormaPagamento } =
-   usePagamentoContext();
+    usePagamentoContext();
   const history = useHistory();
-
+  const total = useMemo(
+    () => saldo - valorTotalCarrinho,
+    [saldo, valorTotalCarrinho]
+  );
   return (
     <Container>
       <Voltar onClick={() => history.goBack()} />
@@ -49,24 +54,26 @@ function Carrinho() {
       </PagamentoContainer>
       <TotalContainer>
         <div>
+          <h2> Carteira: </h2>
+          <span> R$ {Number(saldo).toFixed(2)}</span>
+        </div>
+        <div>
           <h2>Total no Carrinho: </h2>
-          <span>R$ </span>
+          <span>R${valorTotalCarrinho.toFixed(2)} </span>
         </div>
         <div>
-          <h2> Saldo: </h2>
-          <span> R$ </span>
-        </div>
-        <div>
-          <h2> Saldo Total: </h2>
-          <span> R$ </span>
+          <h2> Saldo Restante: </h2>
+          <span> R$ {total.toFixed(2)} </span>
         </div>
       </TotalContainer>
       <Button
         onClick={() => {
+          efetuarCompra();
           setOpenSnackbar(true);
         }}
         color="primary"
         variant="contained"
+        disabled={total < 0 ||carrinho.length === 0}
       >
         Comprar
       </Button>

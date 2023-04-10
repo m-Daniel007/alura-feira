@@ -6,14 +6,14 @@ import { useContext } from "react";
 import { UsuarioContext } from "common/context/Usuario";
 
 function Feira() {
-  const { nome, saldo } = useContext(UsuarioContext);
+  const { nome, saldo = 0 } = useContext(UsuarioContext);
   return (
     <Container>
       <NavBar />
       <Header>
         <div>
           <h2> Olá!{nome}</h2>
-          <h3> Saldo: R$ {saldo}</h3>
+          <h3> Saldo: R$ {saldo.toFixed(2)}</h3>
         </div>
         <p>Encontre os melhores produtos orgânicos!</p>
       </Header>

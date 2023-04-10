@@ -26,7 +26,7 @@ export const PagamentoProvider = ({ children }) => {
       juros: 1.5,
     },
   ];
-  const [formaPagamento, setFormaPagamento] = useState(tipoPagamento[1]);
+  const [formaPagamento, setFormaPagamento] = useState(tipoPagamento[0]);
 
   return (
     <PagamentoContext.Provider
